@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<group>
+    <item
+        android:id="@+id/picture_quality"
+        android:icon="@drawable/photo_quality"
+        android:title="Picture Quality"
+        />
+    <item
+        android:id="@+id/saved_images"
+        android:icon="@drawable/saved_image"
+        android:title="Saved Images"
+        />
+    <item
+        android:id="@+id/saved_pdf"
+        android:icon="@drawable/saved_pdf"
+        android:title="Saved Pdf"
+        />
+    <item
+        android:id="@+id/ads_free_version"
+        android:icon="@drawable/ad_free_cart"
+        android:title="Ads Free Version"
+        />
+</group>
+    <item
+        android:title="Communicate">
+    <menu>
+        <item
+            android:id="@+id/share"
+            android:icon="@drawable/share"
+            android:title="Share"
+            />
+        <item
+            android:id="@+id/rate"
+            android:icon="@drawable/rate"
+            android:title="Rate"
+            />
+        <item
+            android:id="@+id/more"
+            android:icon="@drawable/more"
+            android:title="More"
+            />
+        <item
+            android:id="@+id/about_us"
+            android:icon="@drawable/about_us"
+            android:title="About Us"
+            />
+        <item
+            android:id="@+id/exit"
+            android:icon="@drawable/exit"
+            android:title="Exit"
+            />
+    </menu>
+    </item>
+
+</menu>
