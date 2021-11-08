@@ -93,6 +93,7 @@ public class FragmentWebActivity extends Fragment {
         url = prefs.getString("url", "https:www.google.com");//"No name defined" is the default value.
             webView.getSettings().setJavaScriptEnabled(true);
             webView.loadUrl(url);
+        prefs.edit().remove("url").commit();
 
 
 

@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
     ViewPager viewPager;
     FragmentWebActivity fw;
+    public static  String urlhome;
+    public static  String urlreload;
 
     private int[] tabIcons = {
             R.drawable.web,
@@ -144,11 +146,7 @@ public class MainActivity extends AppCompatActivity {
                 bundle.putString("url", "https:www.google.com");
                 FragmentWebActivity fragobj = new FragmentWebActivity();
                 fragobj.setArguments(bundle);
-                FragmentTransaction transaction = getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.viewPager, fragobj);
-                transaction.addToBackStack(null); // Add this line if you want to add the fragment to the back-stack
-                transaction.commit();
+                viewPager.setCurrentItem(0);
                 return true;
             case R.id.refresh:
                 SharedPreferences prefs = getSharedPreferences("pref", MODE_PRIVATE);
@@ -157,11 +155,9 @@ public class MainActivity extends AppCompatActivity {
                 bundle2.putString("url2",url);
                 FragmentWebActivity fragobj2 = new FragmentWebActivity();
                 fragobj2.setArguments(bundle2);
-                FragmentTransaction transaction2 = getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.viewPager, fragobj2);
-                transaction2.addToBackStack(null); // Add this line if you want to add the fragment to the back-stack
-                transaction2.commit();
+
+               viewPager.setCurrentItem(0);
+              // viewPager.
 
                 Toast.makeText(this, "Refresh", Toast.LENGTH_SHORT).show();
                 return true;
