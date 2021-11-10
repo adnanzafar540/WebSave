@@ -6,40 +6,29 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.viewpager.widget.ViewPager;
 
-import android.content.Intent;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.example.websave.Adapters.ViewPagerAdapter;
-import com.example.websave.Fragments.FragmentGalleryActivity;
-import com.example.websave.Fragments.FragmentPdfActivity;
+import com.example.websave.Fragments.Fragment_main;
 import com.example.websave.Fragments.FragmentWebActivity;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity {
     NavigationView nav;
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle toggle;
-    TabLayout tabLayout;
-    ViewPager viewPager;
+
     FragmentWebActivity fw;
     public static  String urlhome;
     public static  String urlreload;
 
-    private int[] tabIcons = {
-            R.drawable.web,
-            R.drawable.saved_image,
-            R.drawable.saved_pdf
-    };
 
 
     @Override
@@ -47,29 +36,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         initialize();
         setNavListener(nav);
-        setViewPager(viewPager,tabLayout);
-    }
-
-
-
-    private void setViewPager(ViewPager viewPager,TabLayout tabLayout) {
-        final ViewPagerAdapter viewPagerAdapter=new ViewPagerAdapter(getSupportFragmentManager());
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                viewPagerAdapter.addFragment(FragmentWebActivity.getInstance(),"WEB");
-                viewPagerAdapter.addFragment(FragmentGalleryActivity.getInstance(),"GALLERY");
-                viewPagerAdapter.addFragment(FragmentPdfActivity.getInstance(),"PDF");
-                viewPager.setAdapter(viewPagerAdapter);
-                tabLayout.setupWithViewPager(viewPager);
-                tabLayout.getTabAt(0).setIcon(tabIcons[0]);
-                tabLayout.getTabAt(1).setIcon(tabIcons[1]);
-                tabLayout.getTabAt(2).setIcon(tabIcons[2]);
-            }
-        });
-
+        getSupportFragmentManager().beginTransaction().replace(R.id.flContainer, new Fragment_main()).commit();
 
     }
+
+
+
+
 
     //Initializing all declared objects and also setting up the Toolbar
     private void initialize() {
@@ -79,8 +52,7 @@ public class MainActivity extends AppCompatActivity {
         fw=new FragmentWebActivity();
         nav=findViewById(R.id.nav_menu);
         drawerLayout=findViewById(R.id.drawer);
-        tabLayout=findViewById(R.id.tab_layout);
-        viewPager=findViewById(R.id.viewPager);
+
         toggle=new ActionBarDrawerToggle(this,drawerLayout,tool,R.string.open,R.string.close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
@@ -142,26 +114,37 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.home:
+
                 Bundle bundle = new Bundle();
-                bundle.putString("url", "https:www.google.com");
+                bundle.putString("home", "https:www.google.com");
                 FragmentWebActivity fragobj = new FragmentWebActivity();
                 fragobj.setArguments(bundle);
-                viewPager.setCurrentItem(0);
+                getSupportFragmentManager().beginTransaction().replace(R.id.flContainer, fragobj).commit();
+
+                Toast.makeText(this, "Go->Home", Toast.LENGTH_SHORT).show();
+
                 return true;
             case R.id.refresh:
                 SharedPreferences prefs = getSharedPreferences("pref", MODE_PRIVATE);
                 String url = prefs.getString("url", "https:www.google.com");
-                Bundle bundle2 = new Bundle();
-                bundle2.putString("url2",url);
+                Bundle bundle2 = new Bundle();bundle2.putString("refresh",url);
                 FragmentWebActivity fragobj2 = new FragmentWebActivity();
                 fragobj2.setArguments(bundle2);
+                getSupportFragmentManager().beginTransaction().replace(R.id.flContainer, fragobj2).commit();
 
-               viewPager.setCurrentItem(0);
-              // viewPager.
+
+                // viewPager.
 
                 Toast.makeText(this, "Refresh", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.search:
+                SearchManager searchManager = (SearchManager) MainActivity.this.getSystemService(Context.SEARCH_SERVICE);
+
+                SearchView searchView = null;
+
+                if (searchView != null) {
+                    searchView.setSearchableInfo(searchManager.getSearchableInfo(MainActivity.this.getComponentName()));
+                }
                 Toast.makeText(this, "Search", Toast.LENGTH_SHORT).show();
                 return true;
             default:

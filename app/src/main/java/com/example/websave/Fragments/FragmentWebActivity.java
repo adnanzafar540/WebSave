@@ -54,6 +54,7 @@ public class FragmentWebActivity extends Fragment {
     SqliteDatabase sqData;
     Images images;
     String url;
+    String url_refresh;
 
     public Bitmap screenShot;
 
@@ -84,18 +85,29 @@ public class FragmentWebActivity extends Fragment {
         fromBottom = AnimationUtils.loadAnimation(view.getContext(), R.anim.from_bottom);
         toBottom = AnimationUtils.loadAnimation(view.getContext(), R.anim.to_bottom);
         webView.setWebViewClient(new MyWebViewClient());
-        try {
-            String urlfromHome = getArguments().getString("url");
-            String urlforreload = getArguments().getString("url2");
+        if (getArguments() != null) {
+            String urlfromHome = getArguments().getString("home");
+            String urlforreload = getArguments().getString("refresh");
             setHome_Refresh(webView, urlfromHome, urlforreload);
-        }catch (Exception e){};
-        SharedPreferences prefs = getActivity().getSharedPreferences("pref", MODE_PRIVATE);
-        url = prefs.getString("url", "https:www.google.com");//"No name defined" is the default value.
+        }else {
+            SharedPreferences prefs = getActivity().getSharedPreferences("pref", MODE_PRIVATE);
+            url = prefs.getString("url", "https:www.google.com");//"No name defined" is the default value.
             webView.getSettings().setJavaScriptEnabled(true);
             webView.loadUrl(url);
-        prefs.edit().remove("url").commit();
+          //  prefs.edit().remove("url").commit();
+        }
+
+        webView.setWebViewClient(new WebViewClient() {
+
+            public void onPageFinished(WebView view, String url) {
+                url=webView.getUrl();
+                SharedPreferences.Editor editor = getActivity().getSharedPreferences("pref", MODE_PRIVATE).edit();
+                editor.putString("url", url);
+                editor.apply();
 
 
+            }
+        });
 
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -129,9 +141,8 @@ public class FragmentWebActivity extends Fragment {
                 ft.attach(frg);
                 ft.commit();**/
              //   getActivity().recreate();
-                FragmentTransaction ft =getActivity().getSupportFragmentManager().beginTransaction();
-                ft.detach(FragmentWebActivity.this).attach(FragmentWebActivity.this).commit();
-                 getActivity().recreate();
+
+                getActivity().recreate();
 
 
             }
@@ -157,18 +168,12 @@ public class FragmentWebActivity extends Fragment {
         Paint paint = new Paint();
         int iHeight = bitmap.getHeight();
         canvas.drawBitmap(bitmap, 0, iHeight, paint);
-        url=webView.getUrl();
-        SharedPreferences.Editor editor = getActivity().getSharedPreferences("pref", MODE_PRIVATE).edit();
-        editor.putString("url", url);
-        editor.apply();
+
         view.draw(canvas);
         return bitmap;
     }
 
-    private String webUrl(WebView view) {
-        String url = webView.getUrl();
-        return url;
-    }
+
 
     private void onAddbuttonClicked() {
         if (isOpen) {
@@ -363,7 +368,9 @@ public class FragmentWebActivity extends Fragment {
             webView.loadUrl(homeurl);
         }
         else if(Reloadurl!=null){
+
             webView.loadUrl(Reloadurl);
+
         }
         else
             return;

@@ -22,22 +22,13 @@
             app:menu="@menu/toolbar_menu"
             app:title="WEB SAVE"
             app:titleTextColor="@color/cardview_light_background" />
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tab_layout"
+        <androidx.fragment.app.FragmentContainerView
+            android:visibility="visible"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:id="@+id/flContainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/toolbar"
-            app:tabIndicatorColor="@android:color/black"
-            app:tabSelectedTextColor="@android:color/black"
-            app:tabTextColor="@android:color/darker_gray"
-            android:elevation="5dp"/>
-
-        <androidx.viewpager.widget.ViewPager
-            android:id="@+id/viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/tab_layout" />
+            android:layout_height="match_parent">
+        </androidx.fragment.app.FragmentContainerView>
 
 
 
