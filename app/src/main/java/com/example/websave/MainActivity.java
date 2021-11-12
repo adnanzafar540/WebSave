@@ -3,17 +3,21 @@ package com.example.websave;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.example.websave.Fragments.Fragment_main;
@@ -24,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     NavigationView nav;
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle toggle;
+    androidx.appcompat.widget.SearchView searchView;
 
     FragmentWebActivity fw;
     public static  String urlhome;
@@ -108,6 +113,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_menu,menu);
+        MenuItem menuItem = menu.findItem(R.id.search);
+        searchView = (SearchView) menuItem.getActionView();
+
         return super.onCreateOptionsMenu(menu);
     }
     @Override
@@ -138,18 +146,40 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Refresh", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.search:
-                SearchManager searchManager = (SearchManager) MainActivity.this.getSystemService(Context.SEARCH_SERVICE);
+                SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+                searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
-                SearchView searchView = null;
+                searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        String search_url;
+                            if(query!=null) {
+                                if(query.contains("com")){
+                                    search_url="https://"+query;
+                                }
+                                else {
+                                    search_url = "https://www.google.com/search?q=" + query;
+                                }
+                                Bundle bundle3 = new Bundle();
+                                bundle3.putString("Searchurl", search_url);
+                                FragmentWebActivity fragobj3 = new FragmentWebActivity();
+                                fragobj3.setArguments(bundle3);
+                                getSupportFragmentManager().beginTransaction().replace(R.id.flContainer, fragobj3).commit();
+                        }
 
-                if (searchView != null) {
-                    searchView.setSearchableInfo(searchManager.getSearchableInfo(MainActivity.this.getComponentName()));
-                }
-                Toast.makeText(this, "Search", Toast.LENGTH_SHORT).show();
-                return true;
-            default:
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        return false;
+                    }
+                });
+
+    }
+
                 return super.onOptionsItemSelected(item);
         }
 
+
     }
-}

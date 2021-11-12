@@ -27,7 +27,7 @@
             android:exported="true">
 
         </activity>  <activity
-            android:name=".Fragments.FragmentWebActivity"
+            android:name=".ShowImageViewActivity"
             android:exported="true">
 
         </activity>

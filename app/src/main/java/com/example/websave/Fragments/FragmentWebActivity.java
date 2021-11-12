@@ -7,11 +7,14 @@ import android.content.Context;
 import android.content.SearchRecentSuggestionsProvider;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Picture;
 import android.graphics.drawable.Drawable;
+import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -22,6 +25,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +45,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -54,7 +61,7 @@ public class FragmentWebActivity extends Fragment {
     SqliteDatabase sqData;
     Images images;
     String url;
-    String url_refresh;
+    private ProgressBar spinner;
 
     public Bitmap screenShot;
 
@@ -78,6 +85,7 @@ public class FragmentWebActivity extends Fragment {
         btnPDF = view.findViewById(R.id.btnPDF);
         btnSS = view.findViewById(R.id.btnScreenShot);
         images = new Images();
+        spinner = (ProgressBar) view.findViewById(R.id.progressBar);
         txtSS = view.findViewById(R.id.add_screen_shot_text);
         txtPDF = view.findViewById(R.id.addPDFText);
         rotateOpen = AnimationUtils.loadAnimation(view.getContext(), R.anim.rotate__open_anime);
@@ -86,26 +94,38 @@ public class FragmentWebActivity extends Fragment {
         toBottom = AnimationUtils.loadAnimation(view.getContext(), R.anim.to_bottom);
         webView.setWebViewClient(new MyWebViewClient());
         if (getArguments() != null) {
+          //  spinner.setVisibility(View.VISIBLE);
             String urlfromHome = getArguments().getString("home");
             String urlforreload = getArguments().getString("refresh");
-            setHome_Refresh(webView, urlfromHome, urlforreload);
+             String urlforSearch = getArguments().getString("Searchurl");
+
+            setHome_Refresh(webView, urlfromHome, urlforreload,urlforSearch);
+          //  spinner.setVisibility(View.GONE);
         }else {
+          //  spinner.setVisibility(View.VISIBLE);
             SharedPreferences prefs = getActivity().getSharedPreferences("pref", MODE_PRIVATE);
             url = prefs.getString("url", "https:www.google.com");//"No name defined" is the default value.
             webView.getSettings().setJavaScriptEnabled(true);
             webView.loadUrl(url);
+         //   spinner.setVisibility(View.GONE);
           //  prefs.edit().remove("url").commit();
         }
 
         webView.setWebViewClient(new WebViewClient() {
 
             public void onPageFinished(WebView view, String url) {
+                spinner.setVisibility(View.GONE);
+                if(url!=null){
                 url=webView.getUrl();
-                SharedPreferences.Editor editor = getActivity().getSharedPreferences("pref", MODE_PRIVATE).edit();
-                editor.putString("url", url);
-                editor.apply();
-
-
+                try {
+                    SharedPreferences.Editor editor = getActivity().getSharedPreferences("pref", MODE_PRIVATE).edit();
+                    editor.putString("url", url);
+                    editor.apply();
+                }catch (Exception e){};
+          }
+         else{
+             return;
+                }
             }
         });
 
@@ -119,31 +139,13 @@ public class FragmentWebActivity extends Fragment {
         btnSS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view1) {
-               /* webView.setWebViewClient(new WebViewClient() {
-                    public void onPageFinished(WebView view, String url) {
-                        takeScreenShot(view);
-                //setContentView(webView);
-                    }
-                });**/
+                images.setUrlthumbnail(saveImage(screenShot(webView)).getAbsolutePath());
                 images.setUrl(saveImage(takeScreenShot2(webView)).getAbsolutePath());
-              //  webView.loadUrl(webView.getUrl().toString());
-
-
-                //   webView.loadUrl( "javascript:window.location.reload( true )" );
-               // webView.loadUrl(url1);
-              //
-                //  webUrl(webView);
+                images.setImage_txt(getDateTime());
+                getPdf(saveImage(takeScreenShot2(webView)).getAbsolutePath());
                 sqData.insertData(images);
-               /* Fragment frg = null;
-                frg = getActivity().getSupportFragmentManager().findFragmentByTag("WebFragment");
-                final FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-                ft.detach(frg);
-                ft.attach(frg);
-                ft.commit();**/
-             //   getActivity().recreate();
 
                 getActivity().recreate();
-
 
             }
         });
@@ -153,6 +155,7 @@ public class FragmentWebActivity extends Fragment {
 
 
     private Bitmap takeScreenShot2(WebView view) {
+        spinner.setVisibility(View.VISIBLE);
         view.enableSlowWholeDocumentDraw();
         view.measure(View.MeasureSpec.makeMeasureSpec(
                 View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED),
@@ -166,11 +169,15 @@ public class FragmentWebActivity extends Fragment {
 
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
+        //int width=bitmap.getWidth();
         int iHeight = bitmap.getHeight();
         canvas.drawBitmap(bitmap, 0, iHeight, paint);
 
         view.draw(canvas);
-        return bitmap;
+      //  getResizedBitmap(bitmap,30);
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+              bitmap, 2000, iHeight, false);
+        return resizedBitmap;
     }
 
 
@@ -205,32 +212,6 @@ public class FragmentWebActivity extends Fragment {
         }
     }
 
-    public static void deleteCache(Context context) {
-        try {
-            File dir = context.getCacheDir();
-            deleteDir(dir);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static boolean deleteDir(File dir) {
-        if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-            return dir.delete();
-        } else if (dir != null && dir.isFile()) {
-            return dir.delete();
-        } else {
-            return false;
-        }
-    }
-
     public File saveImage(Bitmap finalBitmap) {
         String root = getActivity().getFilesDir().getAbsolutePath();
         File myDir = new File(root);
@@ -248,7 +229,7 @@ public class FragmentWebActivity extends Fragment {
             file.delete();
         try {
             FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.flush();
             out.close();
         } catch (Exception e) {
@@ -265,105 +246,7 @@ public class FragmentWebActivity extends Fragment {
         return bitmap;
     }
 
-   /* public Bitmap takeScreenshot_Advanced(View v) {
-        Bitmap bitmap = getScreenBitmap(v); // Get the bitmap
-        return bitmap;       // Save it to the external storage device.
-    }**/
-
-
-    public Bitmap getScreenBitmap(WebView v) {
-        v.enableSlowWholeDocumentDraw();
-        v.setDrawingCacheEnabled(true);
-        v.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-        v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
-
-        v.buildDrawingCache(true);
-        Bitmap b = Bitmap.createBitmap(v.getMeasuredWidth(),
-                v.getMeasuredHeight(), null);
-        v.setDrawingCacheEnabled(false); // clear drawing cache
-        return b;
-    }
-
-    private Bitmap takeScreenshot_Advanced2(View view, int height, int width) {
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        Drawable bgDrawable = view.getBackground();
-        if (bgDrawable != null)
-            bgDrawable.draw(canvas);
-        else
-            canvas.drawColor(Color.WHITE);
-        view.draw(canvas);
-        return bitmap;
-    }
-
-    public static Bitmap getScreenShot(View view) {
-        View screenView = view.getRootView();
-        screenView.setDrawingCacheEnabled(true);
-        Bitmap bitmap = Bitmap.createBitmap(screenView.getDrawingCache());
-        screenView.setDrawingCacheEnabled(false);
-        return bitmap;
-    }
-
-    public Bitmap takeScreenshots(WebView iv) {
-        //ScrollView iv = (ScrollView) findViewById(R.id.scrollView);
-        Bitmap bitmap = Bitmap.createBitmap(
-                iv.getChildAt(0).getWidth(),
-                iv.getChildAt(0).getHeight(),
-                Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(bitmap);
-        iv.getChildAt(0).draw(c);
-        return bitmap;
-    }
-
-    public Bitmap ss(WebView webView) {
-
-        webView.setDrawingCacheEnabled(true);
-        Bitmap bitmap = Bitmap.createBitmap(webView.getDrawingCache(false));
-        webView.setDrawingCacheEnabled(false);
-        return bitmap;
-    }
-
-    private Bitmap getBitmapFromView(View view, int height, int width) {
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        Drawable bgDrawable = view.getBackground();
-        if (bgDrawable != null)
-            bgDrawable.draw(canvas);
-        else
-            canvas.drawColor(Color.WHITE);
-        view.draw(canvas);
-        return bitmap;
-    }
-
-
-    private Bitmap captureScreen() {
-
-        // create bitmap screen capture
-        Bitmap bitmap;
-        View v1 = webView.getRootView();
-        v1.setDrawingCacheEnabled(true);
-        bitmap = Bitmap.createBitmap(v1.getDrawingCache());
-        v1.setDrawingCacheEnabled(false);
-        v1.setDrawingCacheEnabled(false);
-        return bitmap;
-
-
-    }
-    public static Bitmap screenshot(WebView webView) {
-        try {
-            float scale = webView.getScale();
-            int height = (int) (webView.getContentHeight() * scale + 0.5);
-            Bitmap bitmap = Bitmap.createBitmap(webView.getWidth(), height, Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            webView.draw(canvas);
-            return bitmap;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-     public void setHome_Refresh(WebView webView,String homeurl,String Reloadurl){
+     public void setHome_Refresh(WebView webView,String homeurl,String Reloadurl,String Searchurl){
         if(homeurl!=null){
             webView.loadUrl(homeurl);
         }
@@ -372,9 +255,47 @@ public class FragmentWebActivity extends Fragment {
             webView.loadUrl(Reloadurl);
 
         }
-        else
+        else if(Searchurl!=null){
+            webView.loadUrl(Searchurl);
+        }
+        else {
             return;
-
+        }
      }
+    private String getDateTime() {
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd HH:mm:ss");
+        Random generator = new Random();
+        Date date = new Date();
+        int n = 1000;
+        n = generator.nextInt(n);
+        String daydate= "Image-"+n+"-"+dateFormat.format(date)+"sec";
+        return daydate;
+    }
+    public Bitmap getResizedBitmap(Bitmap bm, int newWidth) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        // CREATE A MATRIX FOR THE MANIPULATION
+        Matrix matrix = new Matrix();
+        // RESIZE THE BIT MAP
+        matrix.postScale(scaleWidth, height);
+
+        // "RECREATE" THE NEW BITMAP
+        Bitmap resizedBitmap = Bitmap.createBitmap(
+                bm, 0, 0, width, height, matrix, false);
+        bm.recycle();
+        return resizedBitmap;
+    }
+    public PdfDocument getPdf (String path)  {
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        PdfDocument pdfDocument=new PdfDocument();
+        PdfDocument.PageInfo pageinfo=new PdfDocument.PageInfo.Builder(100,100,1).create();
+        PdfDocument.Page page=pdfDocument.startPage(pageinfo);
+        page.getCanvas().drawBitmap(bitmap,0,0,null);
+        pdfDocument.finishPage(page);
+        ///pdfDocument.close();
+        return pdfDocument;
+    }
+
 
 }

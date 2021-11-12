@@ -31,6 +31,16 @@ public class Images {
 
     String url;
 
+    public String getUrlthumbnail() {
+        return urlthumbnail;
+    }
+
+    public void setUrlthumbnail(String urlthumbnail) {
+        this.urlthumbnail = urlthumbnail;
+    }
+
+    String urlthumbnail;
+
     @ColumnInfo(name = "Image_List",typeAffinity = ColumnInfo.BLOB)
     private byte[] images;
 

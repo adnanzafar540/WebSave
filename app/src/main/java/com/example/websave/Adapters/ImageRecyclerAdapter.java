@@ -1,11 +1,13 @@
 package com.example.websave.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.websave.Entities.Images;
 import com.example.websave.R;
+import com.example.websave.ShowImageViewActivity;
 import com.example.websave.SupportClass.BitmapToString;
 import com.example.websave.ViewHolder.MyViewHolder;
 
@@ -41,10 +44,20 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Images images=(Images)arrayList.get(position);
+        int id=position;
         Glide.with(context)
-                .load(images.getUrl()) // Uri of the picture
+                .load(images.getUrlthumbnail()) // Uri of the picture
     .into(holder.imageViews);
-        holder.textView.setText(images.getUrl());
+        holder.textView.setText(images.getImage_txt());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, ShowImageViewActivity.class);
+                         intent.putExtra("id",id);
+                         context.startActivity(intent);
+
+            }
+        });
     }
 
     @Override
