@@ -45,19 +45,23 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Images images=(Images)arrayList.get(position);
         int id=position;
-        Glide.with(context)
-                .load(images.getUrlthumbnail()) // Uri of the picture
-    .into(holder.imageViews);
-        holder.textView.setText(images.getImage_txt());
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, ShowImageViewActivity.class);
-                         intent.putExtra("id",id);
-                         context.startActivity(intent);
+      if(images.getUrl()!=null) {
+            Glide.with(context)
+                    .load(images.getUrlthumbnail()) // Uri of the picture
+                    .into(holder.imageViews);
+            holder.textView.setText(images.getImage_txt());
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, ShowImageViewActivity.class);
+                    intent.putExtra("id", id);
+                    context.startActivity(intent);
 
-            }
-        });
+                }
+            });
+        }
+        else{
+            holder.itemView.setVisibility(View.INVISIBLE);        }
     }
 
     @Override

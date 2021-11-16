@@ -17,6 +17,9 @@ public class SqliteDatabase extends SQLiteOpenHelper {
     public static final String COL_1 = "imagepath";
     public static final String COL_2 = "Thumbnail";
     public static final String COL_3 = "txt";
+    public static final String COL_4 = "pdfimagepath";
+    public static final String COL_5 = "pdfThumbnail";
+
 
 
     public SqliteDatabase(Context context) {
@@ -26,8 +29,8 @@ public class SqliteDatabase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String Table = "CREATE TABLE " + TABLE_NAME +
-                " (id integer primary key," + COL_1 + " VARCHAR," + COL_2 + " VARCHAR," +
-                COL_3 + " VARCHAR);";
+                " (id integer primary key," + COL_1 + " VARCHAR," + COL_2 + " VARCHAR," +COL_3 + " VARCHAR," +COL_4 + " VARCHAR," +
+                COL_5 + " VARCHAR);";
         db.execSQL(Table);
     }
 
@@ -43,6 +46,8 @@ public class SqliteDatabase extends SQLiteOpenHelper {
         contentValues.put(COL_1, model.getUrl());
         contentValues.put(COL_2, model.getUrlthumbnail());
         contentValues.put(COL_3, model.getImage_txt());
+        contentValues.put(COL_4, model.getPdfurl());
+        contentValues.put(COL_5, model.getPdfurlthumbnail());
         long result = db.insert(TABLE_NAME, null, contentValues);
         if (result == -1) {
             return false;
@@ -64,6 +69,8 @@ public class SqliteDatabase extends SQLiteOpenHelper {
             Model.setUrl(cursor.getString(1));
             Model.setUrlthumbnail(cursor.getString(2));
             Model.setImage_txt(cursor.getString(3));
+            Model.setPdfurl(cursor.getString(4));
+            Model.setPdfurlthumbnail(cursor.getString(5));
             list.add(Model);
         }
         return list;

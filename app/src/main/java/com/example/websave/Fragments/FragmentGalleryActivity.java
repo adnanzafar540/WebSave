@@ -22,6 +22,7 @@ import com.example.websave.Database.SqliteDatabase;
 import com.example.websave.Entities.Images;
 import com.example.websave.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FragmentGalleryActivity extends Fragment {
@@ -30,6 +31,7 @@ public class FragmentGalleryActivity extends Fragment {
     DatabaseProviderImg databaseProviderImg;
     SqliteDatabase sqdata;
     ImageView img;
+    List<Images> FiterData;
     public static FragmentGalleryActivity getInstance(){
         FragmentGalleryActivity fragmentGalleryActivity=new FragmentGalleryActivity();
         return fragmentGalleryActivity;
@@ -46,8 +48,13 @@ public class FragmentGalleryActivity extends Fragment {
         rv_gallery=view.findViewById(R.id.recyclerView);
         sqdata=new SqliteDatabase(getActivity());
         img=view.findViewById(R.id.test_image);
+        FiterData=new ArrayList<>();
+        for(Images img: sqdata.readAllData())
+            if(img.getUrl()!=null){
+                FiterData.add(img);
+            }
         //img.setImageBitmap(BitmapFactory.decodeFile("/data/user/0/com.example.websave/files/Image-2794.jpg"));
-        imgAdap=new ImageRecyclerAdapter(sqdata.readAllData(),getActivity());
+        imgAdap=new ImageRecyclerAdapter(FiterData,getActivity());
         rv_gallery.setLayoutManager(new GridLayoutManager(getContext(),2));
        rv_gallery.setAdapter(imgAdap);
        imgAdap.notifyDataSetChanged();

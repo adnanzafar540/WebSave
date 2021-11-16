@@ -30,6 +30,23 @@ public class Images {
     }
 
     String url;
+    String pdfurl;
+
+    public String getPdfurl() {
+        return pdfurl;
+    }
+
+    public void setPdfurl(String pdfurl) {
+        this.pdfurl = pdfurl;
+    }
+
+    public String getPdfurlthumbnail() {
+        return pdfurlthumbnail;
+    }
+
+    public void setPdfurlthumbnail(String pdfurlthumbnail) {
+        this.pdfurlthumbnail = pdfurlthumbnail;
+    }
 
     public String getUrlthumbnail() {
         return urlthumbnail;
@@ -40,6 +57,7 @@ public class Images {
     }
 
     String urlthumbnail;
+    String pdfurlthumbnail;
 
     @ColumnInfo(name = "Image_List",typeAffinity = ColumnInfo.BLOB)
     private byte[] images;

@@ -3,6 +3,7 @@ package com.example.websave.Adapters;
 import static android.graphics.Color.*;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -17,7 +18,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.websave.Entities.Images;
+import com.example.websave.PsfActivity;
 import com.example.websave.R;
 import com.example.websave.ViewHolder.MyViewHolder;
 import com.google.api.Page;
@@ -49,27 +52,29 @@ import java.util.List;
 
         @Override
         public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-            Images images=(Images)arrayList.get(position);
-            // holder.imageView.setImageBitmap(BitmapToString.getBitmapToString(images.getImages()));
-            //images.setImages(images.getImages());
-          //  holder.imageView.(getPdf(images.getUrl()));
-        }
+            Images images = (Images) arrayList.get(position);
+            if (images.getPdfurl()!= null) {
+                Glide.with(context)
+                        .load(images.getPdfurlthumbnail()) // Uri of the picture
+                        .into(holder.imageViews);
+                holder.textView.setText(images.getImage_txt());
+            }else {
 
+                holder.itemView.setVisibility(View.GONE);
+            }
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent=new Intent(context, PsfActivity.class);
+                    context.startActivity(intent);
+                }
+            });
+        }
         @Override
         public int getItemCount() {
             return arrayList.size();
         }
 
-        public PdfDocument getPdf (String path)  {
-            Bitmap bitmap = BitmapFactory.decodeFile(path);
-            PdfDocument pdfDocument=new PdfDocument();
-            PdfDocument.PageInfo pageinfo=new PdfDocument.PageInfo.Builder(100,100,1).create();
-            PdfDocument.Page page=pdfDocument.startPage(pageinfo);
-            page.getCanvas().drawBitmap(bitmap,0,0,null);
-            pdfDocument.finishPage(page);
-            ///pdfDocument.close();
-            return pdfDocument;
-        }
     }
 
 

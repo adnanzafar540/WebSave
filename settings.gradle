@@ -1,14 +1,13 @@
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
         google()
         mavenCentral()
-         // Warning: this repository is going to shut down soon
     }
+
     repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://jitpack.io' }
+        maven { url "https://www.jitpack.io" }
+        gradlePluginPortal()
     }
 }
 rootProject.name = "WebSave"

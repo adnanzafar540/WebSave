@@ -4,6 +4,8 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.SearchRecentSuggestionsProvider;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -16,7 +18,9 @@ import android.graphics.Picture;
 import android.graphics.drawable.Drawable;
 import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,7 +47,9 @@ import com.example.websave.SupportClass.MyWebViewClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -61,6 +67,7 @@ public class FragmentWebActivity extends Fragment {
     SqliteDatabase sqData;
     Images images;
     String url;
+    boolean isFilepdf=false;
     private ProgressBar spinner;
 
     public Bitmap screenShot;
@@ -136,13 +143,33 @@ public class FragmentWebActivity extends Fragment {
                 onAddbuttonClicked();
             }
         });
+        btnPDF.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isFilepdf=true;
+                images.setPdfurlthumbnail(saveImage(screenShot(webView)).getAbsolutePath());
+                try {
+
+                    images.setPdfurl(getPdf(takeScreenShot2(webView)));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                images.setImage_txt("IMG" + RandomGenerator() + ".pdf" + "\n"+getDateTime()+" secs");
+                //getPdf(t);
+               // getPdf(saveImage(takeScreenShot2(webView);
+                sqData.insertData(images);
+
+                getActivity().recreate();
+            }
+        });
         btnSS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view1) {
                 images.setUrlthumbnail(saveImage(screenShot(webView)).getAbsolutePath());
-                images.setUrl(saveImage(takeScreenShot2(webView)).getAbsolutePath());
-                images.setImage_txt(getDateTime());
-                getPdf(saveImage(takeScreenShot2(webView)).getAbsolutePath());
+                images.setUrl(saveToInternalStorage(takeScreenShot2(webView)));
+
+                images.setImage_txt("IMG" + RandomGenerator() + ".jpeg" + "\n"+getDateTime()+" secs");
+               // getPdf(saveImage(takeScreenShot2(webViw);
                 sqData.insertData(images);
 
                 getActivity().recreate();
@@ -176,7 +203,7 @@ public class FragmentWebActivity extends Fragment {
         view.draw(canvas);
       //  getResizedBitmap(bitmap,30);
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(
-              bitmap, 2000, iHeight, false);
+              bitmap, 1500, iHeight, false);
         return resizedBitmap;
     }
 
@@ -213,6 +240,7 @@ public class FragmentWebActivity extends Fragment {
     }
 
     public File saveImage(Bitmap finalBitmap) {
+        String fname;
         String root = getActivity().getFilesDir().getAbsolutePath();
         File myDir = new File(root);
         if (!myDir.exists()) {
@@ -222,7 +250,14 @@ public class FragmentWebActivity extends Fragment {
         Random generator = new Random();
         int n = 10000;
         n = generator.nextInt(n);
-        String fname = "Image-" + n + ".jpg";
+        if(isFilepdf) {
+             fname = "IMG" + n + ".pdf";
+             isFilepdf=false;
+        }
+        else{
+             fname = "IMG" + n + ".jpg";
+
+        }
         images.setImage_txt(fname);
         File file = new File(myDir, fname);
         if (file.exists())
@@ -237,6 +272,7 @@ public class FragmentWebActivity extends Fragment {
         }
         return file;
     }
+
 
     public Bitmap screenShot(View view) {
         Bitmap bitmap = Bitmap.createBitmap(view.getWidth(),
@@ -263,39 +299,112 @@ public class FragmentWebActivity extends Fragment {
         }
      }
     private String getDateTime() {
+        String daydate;
         DateFormat dateFormat = new SimpleDateFormat("MM/dd HH:mm:ss");
         Random generator = new Random();
         Date date = new Date();
         int n = 1000;
         n = generator.nextInt(n);
-        String daydate= "Image-"+n+"-"+dateFormat.format(date)+"sec";
+            daydate =dateFormat.format(date) + "sec";
+
+
         return daydate;
     }
-    public Bitmap getResizedBitmap(Bitmap bm, int newWidth) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        float scaleWidth = ((float) newWidth) / width;
-        // CREATE A MATRIX FOR THE MANIPULATION
-        Matrix matrix = new Matrix();
-        // RESIZE THE BIT MAP
-        matrix.postScale(scaleWidth, height);
 
-        // "RECREATE" THE NEW BITMAP
-        Bitmap resizedBitmap = Bitmap.createBitmap(
-                bm, 0, 0, width, height, matrix, false);
-        bm.recycle();
-        return resizedBitmap;
-    }
-    public PdfDocument getPdf (String path)  {
-        Bitmap bitmap = BitmapFactory.decodeFile(path);
+    public String getPdf (Bitmap bitmap) throws FileNotFoundException {
+        //Bitmap bitmap = BitmapFactory.decodeFile(path);
+
         PdfDocument pdfDocument=new PdfDocument();
-        PdfDocument.PageInfo pageinfo=new PdfDocument.PageInfo.Builder(100,100,1).create();
+        PdfDocument.PageInfo pageinfo=new PdfDocument.PageInfo.Builder(bitmap.getWidth(),bitmap.getHeight(),1).create();
         PdfDocument.Page page=pdfDocument.startPage(pageinfo);
         page.getCanvas().drawBitmap(bitmap,0,0,null);
         pdfDocument.finishPage(page);
         ///pdfDocument.close();
-        return pdfDocument;
+        String root = getActivity().getFilesDir().getAbsolutePath();
+        File myDir = new File(root);
+        if (!myDir.exists()) {
+            myDir.mkdir();
+        }
+
+        Random generator = new Random();
+        int n = 10000;
+        n = generator.nextInt(n);
+        String fname = "Image-" + n + ".jpg";
+        images.setImage_txt(fname);
+        File file = new File(myDir, fname);
+        if (file.exists())
+            file.delete();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            pdfDocument.writeTo(out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        pdfDocument.close();
+
+       /* File myDir = new File(Environment.getExternalStorageDirectory(),"PNG Screenshots");
+        if (!myDir.exists()) {
+            myDir.mkdir();
+        }
+
+        File file = new File(myDir, "Screenshots");
+        if (file.exists())
+            file.delete();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            pdfDocument.writeTo(out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        pdfDocument.close();**/
+        return file.getAbsolutePath();
     }
 
+
+    private String saveToInternalStorage(Bitmap bitmapImage){
+        String savedImageURL = MediaStore.Images.Media.insertImage(
+                getActivity().getContentResolver(),
+                bitmapImage,
+                "Bird22",
+                "Image of bird222"
+        );
+      /*  ContextWrapper cw = new ContextWrapper(getContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        // Create imageDir
+        File mypath=new File(directory,"profile.jpg");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return directory.getAbsolutePath();**/
+        return savedImageURL;
+    }
+    public int RandomGenerator(){
+
+        Random generator = new Random();
+        Date date = new Date();
+        int n = 1000;
+        n = generator.nextInt(n);
+        return n;
+    }
 
 }
