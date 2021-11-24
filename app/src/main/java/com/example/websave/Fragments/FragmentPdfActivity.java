@@ -22,6 +22,7 @@ import com.example.websave.Database.SqliteDatabase;
 import com.example.websave.Entities.Images;
 import com.example.websave.R;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class FragmentPdfActivity extends Fragment {
     DatabaseProviderImg databaseProviderImg;
     SqliteDatabase sqdata;
     ImageView img;
-    List<Images> FiterData;
+    ArrayList<Images> FiterData;
     public static FragmentPdfActivity getInstance()
     {
         FragmentPdfActivity fragmentPdfActivity=new FragmentPdfActivity();
@@ -54,11 +55,28 @@ public class FragmentPdfActivity extends Fragment {
             if(img.getPdfurl()!=null){
                 FiterData.add(img);
             }
-        imgAdap=new ImageRecylerviewPdf(FiterData,getActivity());
+        imgAdap=new ImageRecylerviewPdf(checkForDeleteFiles(FiterData),getActivity());
         rv_gallery.setLayoutManager(new GridLayoutManager(getContext(),2));
         rv_gallery.setAdapter(imgAdap);
         imgAdap.notifyDataSetChanged();
         return view;
     }
+    public ArrayList<Images> checkForDeleteFiles(ArrayList<Images> Filter) {
+        List<Images> FiterData_Deletion;
+        FiterData_Deletion = new ArrayList<>();
+        try {
+            for (Images img1 : Filter)
+                if (img1.getPdfurl() != null) {
+                    File Delfile = new File(img1.getPdfurl());
+                    if (Delfile.exists()) {
+                        FiterData_Deletion.add(img1);
+                    }
+                }
 
-}
+        } catch (Exception e) {
+        }
+
+        return (ArrayList<Images>) FiterData_Deletion;
+    }
+
+    }

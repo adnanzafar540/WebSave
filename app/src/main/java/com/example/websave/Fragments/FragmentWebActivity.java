@@ -3,6 +3,8 @@ package com.example.websave.Fragments;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -17,10 +19,14 @@ import android.graphics.Paint;
 import android.graphics.Picture;
 import android.graphics.drawable.Drawable;
 import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,12 +41,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.websave.Database.DatabaseProviderImg;
 import com.example.websave.Database.SqliteDatabase;
 import com.example.websave.Entities.Images;
+import com.example.websave.MainActivity;
 import com.example.websave.R;
 import com.example.websave.SupportClass.BitmapToString;
 import com.example.websave.SupportClass.MyWebViewClient;
@@ -50,6 +58,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -147,14 +156,16 @@ public class FragmentWebActivity extends Fragment {
             @Override
             public void onClick(View v) {
                 isFilepdf=true;
-                images.setPdfurlthumbnail(saveImage(screenShot(webView)).getAbsolutePath());
+                images.setPdfurlthumbnail(saveImage(screenShot(webView)));
                 try {
 
                     images.setPdfurl(getPdf(takeScreenShot2(webView)));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                images.setImage_txt("IMG" + RandomGenerator() + ".pdf" + "\n"+getDateTime()+" secs");
+                images.setImage_txt("IMG" + RandomGenerator() + ".pdf" + "\n"+getDateTime());
                 //getPdf(t);
                // getPdf(saveImage(takeScreenShot2(webView);
                 sqData.insertData(images);
@@ -165,10 +176,10 @@ public class FragmentWebActivity extends Fragment {
         btnSS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view1) {
-                images.setUrlthumbnail(saveImage(screenShot(webView)).getAbsolutePath());
-                images.setUrl(saveToInternalStorage(takeScreenShot2(webView)));
+                images.setUrlthumbnail(saveImage(screenShot(webView)));
+                images.setUrl(saveImage(takeScreenShot2(webView)));
 
-                images.setImage_txt("IMG" + RandomGenerator() + ".jpeg" + "\n"+getDateTime()+" secs");
+                images.setImage_txt("IMG" + RandomGenerator() + ".jpeg" + "\n"+getDateTime());
                // getPdf(saveImage(takeScreenShot2(webViw);
                 sqData.insertData(images);
 
@@ -196,14 +207,14 @@ public class FragmentWebActivity extends Fragment {
 
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
-        //int width=bitmap.getWidth();
+        int width=bitmap.getWidth();
         int iHeight = bitmap.getHeight();
         canvas.drawBitmap(bitmap, 0, iHeight, paint);
 
         view.draw(canvas);
       //  getResizedBitmap(bitmap,30);
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(
-              bitmap, 1500, iHeight, false);
+              bitmap, width, iHeight, false);
         return resizedBitmap;
     }
 
@@ -239,38 +250,20 @@ public class FragmentWebActivity extends Fragment {
         }
     }
 
-    public File saveImage(Bitmap finalBitmap) {
-        String fname;
-        String root = getActivity().getFilesDir().getAbsolutePath();
-        File myDir = new File(root);
-        if (!myDir.exists()) {
-            myDir.mkdir();
-        }
+    public String saveImage(Bitmap finalBitmap) {
+        File file1 = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+                , "ScreenShot"+RandomGenerator()+".jpeg");
 
-        Random generator = new Random();
-        int n = 10000;
-        n = generator.nextInt(n);
-        if(isFilepdf) {
-             fname = "IMG" + n + ".pdf";
-             isFilepdf=false;
-        }
-        else{
-             fname = "IMG" + n + ".jpg";
 
-        }
-        images.setImage_txt(fname);
-        File file = new File(myDir, fname);
-        if (file.exists())
-            file.delete();
         try {
-            FileOutputStream out = new FileOutputStream(file);
+            FileOutputStream out = new FileOutputStream(file1);
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.flush();
             out.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return file;
+        return file1.getAbsolutePath();
     }
 
 
@@ -300,104 +293,54 @@ public class FragmentWebActivity extends Fragment {
      }
     private String getDateTime() {
         String daydate;
-        DateFormat dateFormat = new SimpleDateFormat("MM/dd HH:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("MM/EEEE HH:mm aa");
         Random generator = new Random();
         Date date = new Date();
         int n = 1000;
         n = generator.nextInt(n);
-            daydate =dateFormat.format(date) + "sec";
+            daydate =dateFormat.format(date);
 
 
         return daydate;
     }
 
-    public String getPdf (Bitmap bitmap) throws FileNotFoundException {
+    public String getPdf (Bitmap bitmap) throws IOException {
         //Bitmap bitmap = BitmapFactory.decodeFile(path);
 
-        PdfDocument pdfDocument=new PdfDocument();
-        PdfDocument.PageInfo pageinfo=new PdfDocument.PageInfo.Builder(bitmap.getWidth(),bitmap.getHeight(),1).create();
-        PdfDocument.Page page=pdfDocument.startPage(pageinfo);
-        page.getCanvas().drawBitmap(bitmap,0,0,null);
+        PdfDocument pdfDocument = new PdfDocument();
+        PdfDocument.PageInfo pageinfo = new PdfDocument.PageInfo.Builder(bitmap.getWidth(), bitmap.getHeight(), 1).create();
+        PdfDocument.Page page = pdfDocument.startPage(pageinfo);
+        page.getCanvas().drawBitmap(bitmap, 0, 0, null);
         pdfDocument.finishPage(page);
         ///pdfDocument.close();
-        String root = getActivity().getFilesDir().getAbsolutePath();
-        File myDir = new File(root);
-        if (!myDir.exists()) {
-            myDir.mkdir();
-        }
 
-        Random generator = new Random();
-        int n = 10000;
-        n = generator.nextInt(n);
-        String fname = "Image-" + n + ".jpg";
-        images.setImage_txt(fname);
-        File file = new File(myDir, fname);
-        if (file.exists())
-            file.delete();
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            pdfDocument.writeTo(out);
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        File file1 = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+                , "ScreenShot"+RandomGenerator()+".pdf");
 
-        pdfDocument.close();
 
-       /* File myDir = new File(Environment.getExternalStorageDirectory(),"PNG Screenshots");
-        if (!myDir.exists()) {
-            myDir.mkdir();
-        }
+                FileOutputStream outputStream1 = new FileOutputStream(file1);
+                pdfDocument.writeTo(outputStream1);
 
-        File file = new File(myDir, "Screenshots");
-        if (file.exists())
-            file.delete();
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            pdfDocument.writeTo(out);
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        pdfDocument.close();**/
-        return file.getAbsolutePath();
+                outputStream1.flush();
+
+
+            pdfDocument.close();
+
+
+        return file1.getAbsolutePath();
+
     }
-
 
     private String saveToInternalStorage(Bitmap bitmapImage){
         String savedImageURL = MediaStore.Images.Media.insertImage(
                 getActivity().getContentResolver(),
                 bitmapImage,
-                "Bird22",
-                "Image of bird222"
+                "Image"+RandomGenerator(),
+                "ScreenShot"
         );
-      /*  ContextWrapper cw = new ContextWrapper(getContext());
-        // path to /data/data/yourapp/app_data/imageDir
-        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
-        // Create imageDir
-        File mypath=new File(directory,"profile.jpg");
-
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(mypath);
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                fos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return directory.getAbsolutePath();**/
         return savedImageURL;
     }
+
     public int RandomGenerator(){
 
         Random generator = new Random();
@@ -406,5 +349,7 @@ public class FragmentWebActivity extends Fragment {
         n = generator.nextInt(n);
         return n;
     }
+
+
 
 }

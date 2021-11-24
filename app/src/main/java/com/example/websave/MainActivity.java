@@ -92,10 +92,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Rate", Toast.LENGTH_SHORT).show();
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
-                    case R.id.more:
-                        Toast.makeText(getApplicationContext(), "More", Toast.LENGTH_SHORT).show();
-                        drawerLayout.closeDrawer(GravityCompat.START);
-                        break;
+
                     case R.id.about_us:
                         Toast.makeText(getApplicationContext(), "About Us", Toast.LENGTH_SHORT).show();
                         drawerLayout.closeDrawer(GravityCompat.START);

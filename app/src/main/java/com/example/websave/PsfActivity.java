@@ -1,12 +1,18 @@
 package com.example.websave;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
+import com.bumptech.glide.Glide;
+import com.example.websave.Database.SqliteDatabase;
 import com.example.websave.SupportClass.MyWebViewClient;
 import com.github.barteksc.pdfviewer.PDFView;
 import com.rajat.pdfviewer.PdfViewerActivity;
@@ -14,14 +20,16 @@ import com.rajat.pdfviewer.PdfViewerActivity;
 import java.io.File;
 
 public class PsfActivity extends AppCompatActivity {
-PDFView pdfView;
+    PDFView pdfView;
+
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pdfactivity);
-        pdfView = findViewById(R.id.pdfView);
-        pdfView.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/data/user/0/com.example.websave/files/Image-4362.jpg")).load();
+        Bundle extras = getIntent().getExtras();
+        String url = extras.getString("url");
 
+       // pdfView.fromFile(new File("/storage/emulated/0/Android/data/com.example.websave/files/Documents/Client.pdf963")).load();
 
     }
-
 }

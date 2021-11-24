@@ -55,6 +55,12 @@ public class SqliteDatabase extends SQLiteOpenHelper {
             return true;
         }
     }
+    public void delete(String ID) {
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        //deleting row
+        sqLiteDatabase.delete(TABLE_NAME, "ID=" + ID, null);
+        sqLiteDatabase.close();
+    }
 
     public ArrayList<Images> readAllData() {
         String query = "SELECT * FROM " + TABLE_NAME;
@@ -85,6 +91,28 @@ public class SqliteDatabase extends SQLiteOpenHelper {
             cursor.moveToFirst();
             images.setUrl(cursor.getString(1));
 
+                //  images.setPdfurl(cursor.getString(4));
+
+        }
+        return images;
+    }
+    public Images checkid_GetPdf(int key) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Images images = new Images();
+        Cursor cursor = null;
+        if (db != null) {
+            cursor = db.rawQuery("SELECT * FROM image_table WHERE id = '" + key + "'", null);
+            cursor.moveToFirst();
+            images.setPdfurl(cursor.getString(4));
+            while (images.getPdfurl().contains("")){
+                if (images.getPdfurl()!= null) {
+                    return images;
+                } else {
+                    key++;
+                }
+                //  images.setPdfurl(cursor.getString(4));
+
+            }
         }
         return images;
     }

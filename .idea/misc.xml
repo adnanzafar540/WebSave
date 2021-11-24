@@ -15,6 +15,9 @@
         <entry key="..\:/Users/Basit Ali/AndroidStudioProjects/WebSave/app/src/main/res/layout/web_layout.xml" value="0.1" />
         <entry key="..\:/Users/Basit Ali/AndroidStudioProjects/WebSave/app/src/main/res/menu/menu_icons.xml" value="0.25" />
         <entry key="..\:/Users/Basit Ali/AndroidStudioProjects/WebSave/app/src/main/res/menu/toolbar_menu.xml" value="0.1" />
+        <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/drawable/ad_free_cart.xml" value="0.20277777777777778" />
+        <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/drawable/exit.xml" value="0.20277777777777778" />
+        <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/drawable/photo_quality.xml" value="0.20277777777777778" />
         <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/layout/activity_main.xml" value="0.10733695652173914" />
         <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/layout/activity_splash_screen.xml" value="0.10597826086956522" />
         <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/layout/for_tstin_purpose.xml" value="0.10643115942028986" />
@@ -28,9 +31,12 @@
         <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/layout/pdf_activity.xml" value="0.11503623188405797" />
         <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/layout/pdf_layout.xml" value="0.11367753623188406" />
         <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/layout/pdfactivity.xml" value="0.11503623188405797" />
+        <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/layout/provider_path.xml" value="0.12952898550724637" />
         <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/layout/show_image.xml" value="0.1213768115942029" />
         <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/layout/web_layout.xml" value="0.11367753623188406" />
+        <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/menu/menu_icons.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/menu/toolbar_menu.xml" value="0.18981481481481483" />
+        <entry key="..\:/Users/baba/AndroidStudioProjects/WebSave/app/src/main/res/xml/provider_paths.xml" value="0.1" />
       </map>
     </option>
   </component>

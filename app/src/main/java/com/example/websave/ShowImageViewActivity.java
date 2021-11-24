@@ -19,11 +19,10 @@ ImageView imageView;
         setContentView(R.layout.show_image);
         imageView=findViewById(R.id.img);
         Bundle extras = getIntent().getExtras();
-            int id = extras.getInt("id");
-            id=id+1;
+            String url = extras.getString("url");
             SqliteDatabase database = new SqliteDatabase(this);
             Glide.with(this)
-                    .load( database.checkid_GetPicture(id).getUrl()) // Uri of the picture
+                    .load(url) // Uri of the picture
                     .into(imageView);
     }
 }

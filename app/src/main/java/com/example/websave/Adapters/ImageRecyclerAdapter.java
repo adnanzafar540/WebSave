@@ -1,9 +1,11 @@
 package com.example.websave.Adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +15,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.websave.Database.SqliteDatabase;
 import com.example.websave.Entities.Images;
 import com.example.websave.R;
 import com.example.websave.ShowImageViewActivity;
 import com.example.websave.SupportClass.BitmapToString;
 import com.example.websave.ViewHolder.MyViewHolder;
 
+import java.io.File;
 import java.util.List;
 
 public class ImageRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
@@ -44,8 +48,9 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Images images=(Images)arrayList.get(position);
+
         int id=position;
-      if(images.getUrl()!=null) {
+
             Glide.with(context)
                     .load(images.getUrlthumbnail()) // Uri of the picture
                     .into(holder.imageViews);
@@ -53,15 +58,21 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, ShowImageViewActivity.class);
-                    intent.putExtra("id", id);
-                    context.startActivity(intent);
+                    String url= images.getUrl();
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                        intent.setDataAndType(Uri.parse(url), "image/*");
+                        context.startActivity(intent);
+                   /* Intent intent = new Intent(context, ShowImageViewActivityException e){
+                        SqliteDatabase db=new SqliteDatabase(context);
+                        db.delete(String.valueOf(id+1));
+                    .class);
+                    intent.putExtra("url", url);
+                    context.startActivity(intent);**/
 
                 }
             });
-        }
-        else{
-            holder.itemView.setVisibility(View.INVISIBLE);        }
+
     }
 
     @Override

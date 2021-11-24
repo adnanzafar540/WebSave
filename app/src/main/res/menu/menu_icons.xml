@@ -37,11 +37,6 @@
             android:title="Rate"
             />
         <item
-            android:id="@+id/more"
-            android:icon="@drawable/more"
-            android:title="More"
-            />
-        <item
             android:id="@+id/about_us"
             android:icon="@drawable/about_us"
             android:title="About Us"
