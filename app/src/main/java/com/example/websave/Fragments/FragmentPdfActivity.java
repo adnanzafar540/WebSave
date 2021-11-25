@@ -62,7 +62,7 @@ public class FragmentPdfActivity extends Fragment {
         return view;
     }
     public ArrayList<Images> checkForDeleteFiles(ArrayList<Images> Filter) {
-        List<Images> FiterData_Deletion;
+        ArrayList<Images> FiterData_Deletion;
         FiterData_Deletion = new ArrayList<>();
         try {
             for (Images img1 : Filter)
@@ -76,7 +76,7 @@ public class FragmentPdfActivity extends Fragment {
         } catch (Exception e) {
         }
 
-        return (ArrayList<Images>) FiterData_Deletion;
+        return FiterData_Deletion;
     }
 
     }

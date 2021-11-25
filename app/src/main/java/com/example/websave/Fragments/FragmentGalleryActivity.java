@@ -70,12 +70,12 @@ public class FragmentGalleryActivity extends Fragment {
 
     }
     public ArrayList<Images> checkForDeleteFiles(ArrayList<Images> Filter) {
-        List<Images> FiterData_Deletion;
+        ArrayList<Images> FiterData_Deletion;
         FiterData_Deletion = new ArrayList<>();
         try {
             for (Images img1 : Filter)
-                if (img1.getPdfurl() != null) {
-                    File Delfile = new File(img1.getPdfurl());
+                if (img1.getUrl() != null) {
+                    File Delfile = new File(img1.getUrl());
                     if (Delfile.exists()) {
                         FiterData_Deletion.add(img1);
                     }
@@ -84,7 +84,7 @@ public class FragmentGalleryActivity extends Fragment {
         } catch (Exception e) {
         }
 
-        return (ArrayList<Images>) FiterData_Deletion;
+        return  FiterData_Deletion;
     }
 
 

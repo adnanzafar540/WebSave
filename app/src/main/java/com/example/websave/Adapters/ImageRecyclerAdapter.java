@@ -12,9 +12,11 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.websave.BuildConfig;
 import com.example.websave.Database.SqliteDatabase;
 import com.example.websave.Entities.Images;
 import com.example.websave.R;
@@ -59,17 +61,19 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
                 @Override
                 public void onClick(View v) {
                     String url= images.getUrl();
-                    Intent intent = new Intent();
-                    intent.setAction(Intent.ACTION_VIEW);
-                        intent.setDataAndType(Uri.parse(url), "image/*");
-                        context.startActivity(intent);
-                   /* Intent intent = new Intent(context, ShowImageViewActivityException e){
-                        SqliteDatabase db=new SqliteDatabase(context);
-                        db.delete(String.valueOf(id+1));
-                    .class);
-                    intent.putExtra("url", url);
-                    context.startActivity(intent);**/
+                    File file = new File(url);
+                    Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider",file);
+                    Intent pdfOpenintent = new Intent(Intent.ACTION_VIEW);
+                    pdfOpenintent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    pdfOpenintent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    pdfOpenintent.setDataAndType(uri, "image/*");
+                    try {
+                        context.startActivity(pdfOpenintent);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
 
+                    }
                 }
             });
 

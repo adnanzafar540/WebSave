@@ -36,6 +36,7 @@ import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,7 +79,8 @@ public class FragmentWebActivity extends Fragment {
     String url;
     boolean isFilepdf=false;
     private ProgressBar spinner;
-
+    private ProgressBar spinner2;
+    boolean pageLoading=false;
     public Bitmap screenShot;
 
     public static FragmentWebActivity getInstance() {
@@ -102,6 +104,8 @@ public class FragmentWebActivity extends Fragment {
         btnSS = view.findViewById(R.id.btnScreenShot);
         images = new Images();
         spinner = (ProgressBar) view.findViewById(R.id.progressBar);
+        spinner2 = (ProgressBar) view.findViewById(R.id.progressBar2);
+        spinner.setVisibility(View.INVISIBLE);
         txtSS = view.findViewById(R.id.add_screen_shot_text);
         txtPDF = view.findViewById(R.id.addPDFText);
         rotateOpen = AnimationUtils.loadAnimation(view.getContext(), R.anim.rotate__open_anime);
@@ -127,23 +131,7 @@ public class FragmentWebActivity extends Fragment {
           //  prefs.edit().remove("url").commit();
         }
 
-        webView.setWebViewClient(new WebViewClient() {
 
-            public void onPageFinished(WebView view, String url) {
-                spinner.setVisibility(View.GONE);
-                if(url!=null){
-                url=webView.getUrl();
-                try {
-                    SharedPreferences.Editor editor = getActivity().getSharedPreferences("pref", MODE_PRIVATE).edit();
-                    editor.putString("url", url);
-                    editor.apply();
-                }catch (Exception e){};
-          }
-         else{
-             return;
-                }
-            }
-        });
 
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -155,37 +143,84 @@ public class FragmentWebActivity extends Fragment {
         btnPDF.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isFilepdf=true;
-                images.setPdfurlthumbnail(saveImage(screenShot(webView)));
-                try {
+                if(pageLoading){
+                spinner.setVisibility(View.VISIBLE);
+                Handler handler = new Handler();
+                new Thread(new Runnable() {
+                    public void run() {
+                        try{
+                            Thread.sleep(000);
+                        }
+                        catch (Exception e) { } // Just catch the InterruptedException
 
-                    images.setPdfurl(getPdf(takeScreenShot2(webView)));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                images.setImage_txt("IMG" + RandomGenerator() + ".pdf" + "\n"+getDateTime());
-                //getPdf(t);
-               // getPdf(saveImage(takeScreenShot2(webView);
-                sqData.insertData(images);
+                        // Now we use the Handler to post back to the main thread
+                        handler.post(new Runnable() {
+                            public void run() {
+                                isFilepdf=true;
+                                images.setPdfurlthumbnail(saveImage(screenShot(webView)));
+                                try {
 
-                getActivity().recreate();
-            }
+                                    images.setPdfurl(getPdf(takeScreenShot2(webView)));
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                images.setImage_txt("IMG" + RandomGenerator() + ".pdf" + "\n"+getDateTime());
+                                //getPdf(t);
+                                // getPdf(saveImage(takeScreenShot2(webView);
+                                sqData.insertData(images);
+
+                                getActivity().recreate();
+                                // Set the View's visibility back on the main UI Thread
+                                spinner.setVisibility(View.INVISIBLE);
+                            }
+                        });
+                    }
+                }).start();
+
+            }else{
+                    Toast.makeText(getContext(),"Wait Page is Loading",Toast.LENGTH_SHORT);
+                }}
         });
         btnSS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view1) {
-                images.setUrlthumbnail(saveImage(screenShot(webView)));
-                images.setUrl(saveImage(takeScreenShot2(webView)));
+                if(pageLoading){
+                spinner.setVisibility(View.VISIBLE);
+                Handler handler = new Handler();
+                new Thread(new Runnable() {
+                    public void run() {
+                        try{
+                            Thread.sleep(000);
+                        }
+                        catch (Exception e) { } // Just catch the InterruptedException
 
-                images.setImage_txt("IMG" + RandomGenerator() + ".jpeg" + "\n"+getDateTime());
-               // getPdf(saveImage(takeScreenShot2(webViw);
-                sqData.insertData(images);
+                        // Now we use the Handler to post back to the main thread
+                        handler.post(new Runnable() {
+                            public void run() {
+                                images.setUrlthumbnail(saveImage(screenShot(webView)));
+                                images.setUrl(saveImage(takeScreenShot2(webView)));
 
-                getActivity().recreate();
+                                images.setImage_txt("IMG" + RandomGenerator() + ".jpeg" + "\n"+getDateTime());
+                                // getPdf(saveImage(takeScreenShot2(webViw);
+                                sqData.insertData(images);
 
-            }
+                                getActivity().recreate();
+
+                               // getActivity().recreate();
+                                // Set the View's visibility back on the main UI Thread
+                                spinner.setVisibility(View.INVISIBLE);
+                            }
+                        });
+                    }
+                }).start();
+
+
+
+            }else{
+                    Toast.makeText(getContext(),"Wait Page is Loading",Toast.LENGTH_SHORT);
+                }}
         });
         return view;
 
@@ -213,9 +248,7 @@ public class FragmentWebActivity extends Fragment {
 
         view.draw(canvas);
       //  getResizedBitmap(bitmap,30);
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
-              bitmap, width, iHeight, false);
-        return resizedBitmap;
+        return bitmap;
     }
 
 
@@ -349,7 +382,29 @@ public class FragmentWebActivity extends Fragment {
         n = generator.nextInt(n);
         return n;
     }
+public boolean checkPageFinishLoading(){
+    webView.setWebViewClient(new WebViewClient() {
 
+        public void onPageFinished(WebView view, String url) {
+            spinner2.setVisibility(View.GONE);
+            pageLoading=true;
+            if(url!=null){
+                url=webView.getUrl();
+                try {
+                    SharedPreferences.Editor editor = getActivity().getSharedPreferences("pref", MODE_PRIVATE).edit();
+                    editor.putString("url", url);
+                    editor.apply();
+                }catch (Exception e){};
+            }
+            else{
+                return ;
+            }
+        }
+
+    });
+    return true;
+
+}
 
 
 }
