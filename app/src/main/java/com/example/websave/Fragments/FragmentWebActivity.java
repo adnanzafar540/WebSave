@@ -131,7 +131,24 @@ public class FragmentWebActivity extends Fragment {
           //  prefs.edit().remove("url").commit();
         }
 
+        webView.setWebViewClient(new WebViewClient() {
+            public void onPageFinished(WebView view, String url) {
+                spinner2.setVisibility(View.GONE);
+                pageLoading=true;
+                if(url!=null){
+                    url=webView.getUrl();
+                    try {
+                        SharedPreferences.Editor editor = getActivity().getSharedPreferences("pref", MODE_PRIVATE).edit();
+                        editor.putString("url", url);
+                        editor.apply();
+                    }catch (Exception e){};
+                }
+                else{
+                    return ;
+                }
+            }
 
+        });
 
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -144,7 +161,7 @@ public class FragmentWebActivity extends Fragment {
             @Override
             public void onClick(View v) {
                 if(pageLoading){
-                spinner.setVisibility(View.VISIBLE);
+              //  spinner.setVisibility(View.VISIBLE);
                 Handler handler = new Handler();
                 new Thread(new Runnable() {
                     public void run() {
@@ -173,7 +190,8 @@ public class FragmentWebActivity extends Fragment {
 
                                 getActivity().recreate();
                                 // Set the View's visibility back on the main UI Thread
-                                spinner.setVisibility(View.INVISIBLE);
+                                //spinner.setVisibility(View.INVISIBLE);
+                                pageLoading=false;
                             }
                         });
                     }
@@ -187,7 +205,7 @@ public class FragmentWebActivity extends Fragment {
             @Override
             public void onClick(View view1) {
                 if(pageLoading){
-                spinner.setVisibility(View.VISIBLE);
+                //spinner.setVisibility(View.VISIBLE);
                 Handler handler = new Handler();
                 new Thread(new Runnable() {
                     public void run() {
@@ -210,7 +228,9 @@ public class FragmentWebActivity extends Fragment {
 
                                // getActivity().recreate();
                                 // Set the View's visibility back on the main UI Thread
-                                spinner.setVisibility(View.INVISIBLE);
+                               // spinner.setVisibility(View.INVISIBLE);
+                                pageLoading=false;
+
                             }
                         });
                     }

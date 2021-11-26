@@ -68,10 +68,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()){
-                    case R.id.picture_quality:
-                        Toast.makeText(getApplicationContext(), "Picture Quality", Toast.LENGTH_SHORT).show();
-                        drawerLayout.closeDrawer(GravityCompat.START);
-                        break;
+
                     case R.id.saved_images:
                         Toast.makeText(getApplicationContext(), "Saved Images", Toast.LENGTH_SHORT).show();
                         drawerLayout.closeDrawer(GravityCompat.START);
@@ -80,10 +77,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Saved PDF", Toast.LENGTH_SHORT).show();
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
-                    case R.id.ads_free_version:
-                        Toast.makeText(getApplicationContext(), "Ads Free Version", Toast.LENGTH_SHORT).show();
-                        drawerLayout.closeDrawer(GravityCompat.START);
-                        break;
+
                     case R.id.share:
                         Toast.makeText(getApplicationContext(), "Share", Toast.LENGTH_SHORT).show();
                         drawerLayout.closeDrawer(GravityCompat.START);

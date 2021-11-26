@@ -18,17 +18,17 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_gradient"
+            android:background="#7612a7"
             app:menu="@menu/toolbar_menu"
             app:title="WEB SAVE"
             app:titleTextColor="@color/cardview_light_background" />
+
         <androidx.fragment.app.FragmentContainerView
-            android:visibility="visible"
-            android:layout_marginTop="?attr/actionBarSize"
             android:id="@+id/flContainer"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        </androidx.fragment.app.FragmentContainerView>
+            android:layout_height="match_parent"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:visibility="visible"></androidx.fragment.app.FragmentContainerView>
 
 
 
@@ -38,6 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/nav_menu"
+        android:background="#7612a7"
         app:menu="@menu/menu_icons"
         app:headerLayout="@layout/nav_header"
         android:layout_gravity="start"
