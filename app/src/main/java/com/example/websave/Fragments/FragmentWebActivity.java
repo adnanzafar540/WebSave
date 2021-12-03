@@ -2,32 +2,16 @@ package com.example.websave.Fragments;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.Intent;
-import android.content.SearchRecentSuggestionsProvider;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Picture;
-import android.graphics.drawable.Drawable;
 import android.graphics.pdf.PdfDocument;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,22 +20,16 @@ import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
-import com.example.websave.Database.DatabaseProviderImg;
 import com.example.websave.Database.SqliteDatabase;
 import com.example.websave.Entities.Images;
-import com.example.websave.MainActivity;
 import com.example.websave.R;
-import com.example.websave.SupportClass.BitmapToString;
 import com.example.websave.SupportClass.MyWebViewClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -59,12 +37,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Random;
 
 public class FragmentWebActivity extends Fragment {

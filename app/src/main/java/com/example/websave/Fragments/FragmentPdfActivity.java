@@ -1,7 +1,6 @@
 package com.example.websave.Fragments;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,25 +11,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.websave.Adapters.ImageRecyclerAdapter;
 import com.example.websave.Adapters.ImageRecylerviewPdf;
-import com.example.websave.Database.DatabaseProviderImg;
 import com.example.websave.Database.SqliteDatabase;
 import com.example.websave.Entities.Images;
 import com.example.websave.R;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 public class FragmentPdfActivity extends Fragment {
     RecyclerView rv_gallery;
     ImageRecylerviewPdf imgAdap;
-
-    DatabaseProviderImg databaseProviderImg;
     SqliteDatabase sqdata;
     ImageView img;
     ArrayList<Images> FiterData;

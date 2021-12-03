@@ -27,9 +27,6 @@ public class PsfActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pdfactivity);
         Bundle extras = getIntent().getExtras();
-        String url = extras.getString("url");
-
-       // pdfView.fromFile(new File("/storage/emulated/0/Android/data/com.example.websave/files/Documents/Client.pdf963")).load();
 
     }
 }
