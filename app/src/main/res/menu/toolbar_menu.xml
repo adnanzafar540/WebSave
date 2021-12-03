@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/home"
+        android:iconTint="@color/white"
         android:icon="@drawable/home"
         android:title=""
         app:showAsAction="ifRoom"
@@ -11,12 +12,14 @@
         android:id="@+id/refresh"
         android:icon="@drawable/refresh"
         android:title=""
+        android:iconTint="@color/white"
         app:showAsAction="ifRoom"
         />
     <item
         android:id="@+id/search"
         android:icon="@drawable/search"
         android:title=""
+        android:iconTint="@color/white"
         app:showAsAction="ifRoom|collapseActionView"
     app:actionViewClass="androidx.appcompat.widget.SearchView"
 

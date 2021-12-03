@@ -1,5 +1,6 @@
 package com.example.websave.Fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -19,9 +20,9 @@ public class Fragment_main extends Fragment {
     TabLayout tabLayout;
     ViewPager viewPager;
     private int[] tabIcons = {
-            R.drawable.web,
-            R.drawable.saved_image,
-            R.drawable.saved_pdf
+            R.drawable.ic_internet,
+            R.drawable.ic_gallery,
+            R.drawable.ic_pdf
     };
 
     @Override

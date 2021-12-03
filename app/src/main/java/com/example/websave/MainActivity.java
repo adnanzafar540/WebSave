@@ -20,6 +20,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.websave.Fragments.FragmentGalleryActivity;
+import com.example.websave.Fragments.FragmentPdfActivity;
 import com.example.websave.Fragments.Fragment_main;
 import com.example.websave.Fragments.FragmentWebActivity;
 import com.google.android.material.navigation.NavigationView;
@@ -44,11 +46,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.flContainer, new Fragment_main()).commit();
 
     }
-
-
-
-
-
     //Initializing all declared objects and also setting up the Toolbar
     private void initialize() {
         setContentView(R.layout.activity_main);
@@ -58,7 +55,9 @@ public class MainActivity extends AppCompatActivity {
         nav=findViewById(R.id.nav_menu);
         drawerLayout=findViewById(R.id.drawer);
 
+        nav.bringToFront();
         toggle=new ActionBarDrawerToggle(this,drawerLayout,tool,R.string.open,R.string.close);
+        toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.white));
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
     }
@@ -72,17 +71,34 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.saved_images:
                         Toast.makeText(getApplicationContext(), "Saved Images", Toast.LENGTH_SHORT).show();
                         drawerLayout.closeDrawer(GravityCompat.START);
+                        FragmentGalleryActivity fg=new FragmentGalleryActivity();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.flContainer, fg).commit();
+
+
+
                         break;
                     case R.id.saved_pdf:
                         Toast.makeText(getApplicationContext(), "Saved PDF", Toast.LENGTH_SHORT).show();
                         drawerLayout.closeDrawer(GravityCompat.START);
+                        FragmentPdfActivity fd=new FragmentPdfActivity();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.flContainer, fd).commit();
+
                         break;
 
                     case R.id.share:
+                        Intent shareintent = new Intent();
+                        shareintent.setAction(Intent.ACTION_SEND);
+                        shareintent.putExtra(Intent.EXTRA_TEXT, "https://play.google.com/store/apps/details?1d-h1");
+                        shareintent.setType("Text/Plain");
+                        startActivity(Intent.createChooser(shareintent, "share via"));
+
                         Toast.makeText(getApplicationContext(), "Share", Toast.LENGTH_SHORT).show();
                         drawerLayout.closeDrawer(GravityCompat.START);
+
                         break;
                     case R.id.rate:
+                        Intent intent=new Intent(MainActivity.this,rattig_bar.class);
+                        startActivity(intent);
                         Toast.makeText(getApplicationContext(), "Rate", Toast.LENGTH_SHORT).show();
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
@@ -91,10 +107,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "About Us", Toast.LENGTH_SHORT).show();
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
-                    case R.id.exit:
-                        Toast.makeText(getApplicationContext(), "Exit", Toast.LENGTH_SHORT).show();
-                        drawerLayout.closeDrawer(GravityCompat.START);
-                        break;
+
                 }
 
                 return true;

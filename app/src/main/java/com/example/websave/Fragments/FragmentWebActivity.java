@@ -80,7 +80,7 @@ public class FragmentWebActivity extends Fragment {
     boolean isFilepdf=false;
     private ProgressBar spinner;
     private ProgressBar spinner2;
-    boolean pageLoading;
+    boolean pageLoading=false;
     public Bitmap screenShot;
 
     public static FragmentWebActivity getInstance() {
@@ -112,7 +112,6 @@ public class FragmentWebActivity extends Fragment {
         rotateClose = AnimationUtils.loadAnimation(view.getContext(), R.anim.rotate_close_anime);
         fromBottom = AnimationUtils.loadAnimation(view.getContext(), R.anim.from_bottom);
         toBottom = AnimationUtils.loadAnimation(view.getContext(), R.anim.to_bottom);
-        webView.enableSlowWholeDocumentDraw();
         webView.setWebViewClient(new MyWebViewClient());
         if (getArguments() != null) {
           //  spinner.setVisibility(View.VISIBLE);
@@ -162,26 +161,41 @@ public class FragmentWebActivity extends Fragment {
             @Override
             public void onClick(View v) {
                 if(pageLoading){
+              //  spinner.setVisibility(View.VISIBLE);
+                Handler handler = new Handler();
+                new Thread(new Runnable() {
+                    public void run() {
+                        try{
+                            Thread.sleep(000);
+                        }
+                        catch (Exception e) { } // Just catch the InterruptedException
 
+                        // Now we use the Handler to post back to the main thread
+                        handler.post(new Runnable() {
+                            public void run() {
                                 isFilepdf=true;
                                 images.setPdfurlthumbnail(saveImage(screenShot(webView)));
+                                try {
 
-                    try {
-                        images.setPdfurl(getPdf(takeScreenShot2(webView)));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    images.setImage_txt("IMG" + RandomGenerator() + ".pdf" + "\n"+getDateTime());
+                                    images.setPdfurl(getPdf(takeScreenShot2(webView)));
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                images.setImage_txt("IMG" + RandomGenerator() + ".pdf" + "\n"+getDateTime());
                                 //getPdf(t);
                                 // getPdf(saveImage(takeScreenShot2(webView);
                                 sqData.insertData(images);
-                                pageLoading=false;
+
                                 getActivity().recreate();
                                 // Set the View's visibility back on the main UI Thread
                                 //spinner.setVisibility(View.INVISIBLE);
-
-
+                                pageLoading=false;
+                            }
+                        });
+                    }
+                }).start();
 
             }else{
                     Toast.makeText(getContext(),"Wait Page is Loading",Toast.LENGTH_SHORT);
@@ -191,22 +205,36 @@ public class FragmentWebActivity extends Fragment {
             @Override
             public void onClick(View view1) {
                 if(pageLoading){
+                //spinner.setVisibility(View.VISIBLE);
+                Handler handler = new Handler();
+                new Thread(new Runnable() {
+                    public void run() {
+                        try{
+                            Thread.sleep(000);
+                        }
+                        catch (Exception e) { } // Just catch the InterruptedException
 
+                        // Now we use the Handler to post back to the main thread
+                        handler.post(new Runnable() {
+                            public void run() {
                                 images.setUrlthumbnail(saveImage(screenShot(webView)));
                                 images.setUrl(saveImage(takeScreenShot2(webView)));
 
                                 images.setImage_txt("IMG" + RandomGenerator() + ".jpeg" + "\n"+getDateTime());
                                 // getPdf(saveImage(takeScreenShot2(webViw);
                                 sqData.insertData(images);
-                                pageLoading=false;
+
                                 getActivity().recreate();
 
                                // getActivity().recreate();
                                 // Set the View's visibility back on the main UI Thread
                                // spinner.setVisibility(View.INVISIBLE);
+                                pageLoading=false;
 
-
-
+                            }
+                        });
+                    }
+                }).start();
 
 
 
@@ -220,7 +248,7 @@ public class FragmentWebActivity extends Fragment {
 
 
     private Bitmap takeScreenShot2(WebView view) {
-        //spinner.setVisibility(View.VISIBLE);
+        spinner.setVisibility(View.VISIBLE);
         view.enableSlowWholeDocumentDraw();
         view.measure(View.MeasureSpec.makeMeasureSpec(
                 View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED),
@@ -239,10 +267,8 @@ public class FragmentWebActivity extends Fragment {
         canvas.drawBitmap(bitmap, 0, iHeight, paint);
 
         view.draw(canvas);
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
-                bitmap, width, iHeight, false);
       //  getResizedBitmap(bitmap,30);
-        return resizedBitmap;
+        return bitmap;
     }
 
 

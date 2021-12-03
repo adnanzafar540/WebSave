@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-<group>
+<group android:checkableBehavior="single">
 
     <item
         android:id="@+id/saved_images"
@@ -16,7 +16,9 @@
 
 </group>
     <item
-        android:title="Communicate">
+        android:title="Communicate"
+       >
+
     <menu>
         <item
             android:id="@+id/share"
@@ -30,15 +32,31 @@
             />
         <item
             android:id="@+id/about_us"
-            android:icon="@drawable/about_us"
-            android:title="About Us"
-            />
-        <item
-            android:id="@+id/exit"
-            android:icon="@drawable/exit"
-            android:title="Exit"
-            />
+            android:icon="@drawable/ic_about"
+            android:title="About"/>
+
     </menu>
     </item>
+    <item
+        android:menuCategory="secondary"
+        android:title="" />
+    <item
+        android:menuCategory="secondary"
+        android:title="" />
+    <item
+        android:menuCategory="secondary"
+        android:title="" />
+    <item
+        android:menuCategory="secondary"
+        android:title="" />
+    <group android:checkableBehavior="single"
+        android:menuCategory="secondary"
+        android:id="@+id/grp7">
+        <item
+            android:menuCategory="secondary"
+            android:icon="@drawable/ic_about"
+            android:id="@+id/m_vir"
+            android:title="Version 1.0.1" />
+    </group>
 
 </menu>
