@@ -43,9 +43,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
+
 public class FragmentWebActivity extends Fragment {
     TextView txtSS, txtPDF;
     WebView webView;
+    SharedPreferences.Editor editor;
     OutputStream outputStream;
     Animation rotateOpen, rotateClose, fromBottom, toBottom;
     FloatingActionButton btnAdd, btnPDF, btnSS;
@@ -53,11 +55,17 @@ public class FragmentWebActivity extends Fragment {
     SqliteDatabase sqData;
     Images images;
     String url;
-    boolean isFilepdf=false;
+    int i;
+    boolean isFilepdf = false;
     private ProgressBar spinner;
     private ProgressBar spinner2;
-    boolean pageLoading=false;
-    public Bitmap screenShot;
+    boolean pageLoading = false;
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+    }
 
     public static FragmentWebActivity getInstance() {
         FragmentWebActivity fragmentWebActivity = new FragmentWebActivity();
@@ -88,135 +96,84 @@ public class FragmentWebActivity extends Fragment {
         rotateClose = AnimationUtils.loadAnimation(view.getContext(), R.anim.rotate_close_anime);
         fromBottom = AnimationUtils.loadAnimation(view.getContext(), R.anim.from_bottom);
         toBottom = AnimationUtils.loadAnimation(view.getContext(), R.anim.to_bottom);
+        webView.setDrawingCacheEnabled(true);
         webView.setWebViewClient(new MyWebViewClient());
         if (getArguments() != null) {
-          //  spinner.setVisibility(View.VISIBLE);
             String urlfromHome = getArguments().getString("home");
             String urlforreload = getArguments().getString("refresh");
-             String urlforSearch = getArguments().getString("Searchurl");
-
-            setHome_Refresh(webView, urlfromHome, urlforreload,urlforSearch);
-          //  spinner.setVisibility(View.GONE);
-        }else {
-          //  spinner.setVisibility(View.VISIBLE);
+            String urlforSearch = getArguments().getString("Searchurl");
+            setHome_Refresh(webView, urlfromHome, urlforreload, urlforSearch);
+        } else {
             SharedPreferences prefs = getActivity().getSharedPreferences("pref", MODE_PRIVATE);
-            url = prefs.getString("url", "https:www.google.com");//"No name defined" is the default value.
+            url = prefs.getString("url", "https:www.google.com");
             webView.getSettings().setJavaScriptEnabled(true);
             webView.loadUrl(url);
-         //   spinner.setVisibility(View.GONE);
-          //  prefs.edit().remove("url").commit();
         }
-
         webView.setWebViewClient(new WebViewClient() {
             public void onPageFinished(WebView view, String url) {
+                pageLoading = true;
                 spinner2.setVisibility(View.GONE);
-                pageLoading=true;
-                if(url!=null){
-                    url=webView.getUrl();
+                if (url != null) {
+                    url = webView.getUrl();
                     try {
                         SharedPreferences.Editor editor = getActivity().getSharedPreferences("pref", MODE_PRIVATE).edit();
                         editor.putString("url", url);
                         editor.apply();
-                    }catch (Exception e){};
-                }
-                else{
-                    return ;
+                    } catch (Exception e) {
+                    }
+                    ;
+                } else {
+                    return;
                 }
             }
 
         });
-
-
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+               // checkForReloding();
                 onAddbuttonClicked();
             }
         });
         btnPDF.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(pageLoading){
-              //  spinner.setVisibility(View.VISIBLE);
-                Handler handler = new Handler();
-                new Thread(new Runnable() {
-                    public void run() {
-                        try{
-                            Thread.sleep(000);
-                        }
-                        catch (Exception e) { } // Just catch the InterruptedException
+                if (pageLoading) {
+                    takeScreenShot2(webView);
+                    isFilepdf = true;
+                    images.setPdfurlthumbnail(saveImage(screenShot(webView)));
+                    try {
 
-                        // Now we use the Handler to post back to the main thread
-                        handler.post(new Runnable() {
-                            public void run() {
-                                isFilepdf=true;
-                                images.setPdfurlthumbnail(saveImage(screenShot(webView)));
-                                try {
-
-                                    images.setPdfurl(getPdf(takeScreenShot2(webView)));
-                                } catch (FileNotFoundException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                images.setImage_txt("IMG" + RandomGenerator() + ".pdf" + "\n"+getDateTime());
-                                //getPdf(t);
-                                // getPdf(saveImage(takeScreenShot2(webView);
-                                sqData.insertData(images);
-
-                                getActivity().recreate();
-                                // Set the View's visibility back on the main UI Thread
-                                //spinner.setVisibility(View.INVISIBLE);
-                                pageLoading=false;
-                            }
-                        });
+                        images.setPdfurl(getPdf(takeScreenShot2(webView)));
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                }).start();
-
-            }else{
-                    Toast.makeText(getContext(),"Wait Page is Loading",Toast.LENGTH_SHORT);
-                }}
+                    images.setImage_txt("IMG" + RandomGenerator() + ".pdf" + "\n" + getDateTime());
+                    sqData.insertData(images);
+                    getActivity().recreate();
+                    pageLoading = false;
+                     } else{
+                    Toast t = Toast.makeText(getContext(), "Wait Page is Loading", Toast.LENGTH_SHORT);
+                    t.show();
+                }
+            }
         });
         btnSS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view1) {
-                if(pageLoading){
-                //spinner.setVisibility(View.VISIBLE);
-                Handler handler = new Handler();
-                new Thread(new Runnable() {
-                    public void run() {
-                        try{
-                            Thread.sleep(000);
-                        }
-                        catch (Exception e) { } // Just catch the InterruptedException
+                if (pageLoading) {
+                    images.setUrlthumbnail(saveImage(screenShot(webView)));
+                    images.setUrl(saveImage(takeScreenShot2(webView)));
+                    images.setImage_txt("IMG" + RandomGenerator() + ".jpeg" + "\n" + getDateTime());
+                    sqData.insertData(images);
+                    getActivity().recreate();
+                    pageLoading = false;
 
-                        // Now we use the Handler to post back to the main thread
-                        handler.post(new Runnable() {
-                            public void run() {
-                                images.setUrlthumbnail(saveImage(screenShot(webView)));
-                                images.setUrl(saveImage(takeScreenShot2(webView)));
-
-                                images.setImage_txt("IMG" + RandomGenerator() + ".jpeg" + "\n"+getDateTime());
-                                // getPdf(saveImage(takeScreenShot2(webViw);
-                                sqData.insertData(images);
-
-                                getActivity().recreate();
-
-                               // getActivity().recreate();
-                                // Set the View's visibility back on the main UI Thread
-                               // spinner.setVisibility(View.INVISIBLE);
-                                pageLoading=false;
-
-                            }
-                        });
-                    }
-                }).start();
-
-
-
-            }else{
-                    Toast.makeText(getContext(),"Wait Page is Loading",Toast.LENGTH_SHORT);
-                }}
+                } else {
+               Toast t=Toast.makeText(getContext(), "Wait Page is Loading", Toast.LENGTH_SHORT);
+              t.show();
+                }
+            }
         });
         return view;
 
@@ -231,22 +188,18 @@ public class FragmentWebActivity extends Fragment {
                 View.MeasureSpec.makeMeasureSpec(0,
                         View.MeasureSpec.UNSPECIFIED));
         view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
-        view.setDrawingCacheEnabled(true);
+       // view.setDrawingCacheEnabled(true);
         view.buildDrawingCache();
         Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(),
                 view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-
+        view.setDrawingCacheEnabled(false);
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
-        int width=bitmap.getWidth();
         int iHeight = bitmap.getHeight();
         canvas.drawBitmap(bitmap, 0, iHeight, paint);
-
         view.draw(canvas);
-      //  getResizedBitmap(bitmap,30);
         return bitmap;
     }
-
 
 
     private void onAddbuttonClicked() {
@@ -281,7 +234,7 @@ public class FragmentWebActivity extends Fragment {
 
     public String saveImage(Bitmap finalBitmap) {
         File file1 = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-                , "ScreenShot"+RandomGenerator()+".jpeg");
+                , "ScreenShot" + RandomGenerator() + ".jpeg");
 
 
         try {
@@ -304,22 +257,20 @@ public class FragmentWebActivity extends Fragment {
         return bitmap;
     }
 
-     public void setHome_Refresh(WebView webView,String homeurl,String Reloadurl,String Searchurl){
-        if(homeurl!=null){
+    public void setHome_Refresh(WebView webView, String homeurl, String Reloadurl, String Searchurl) {
+        if (homeurl != null) {
             webView.loadUrl(homeurl);
-        }
-        else if(Reloadurl!=null){
+        } else if (Reloadurl != null) {
 
             webView.loadUrl(Reloadurl);
 
-        }
-        else if(Searchurl!=null){
+        } else if (Searchurl != null) {
             webView.loadUrl(Searchurl);
-        }
-        else {
+        } else {
             return;
         }
-     }
+    }
+
     private String getDateTime() {
         String daydate;
         DateFormat dateFormat = new SimpleDateFormat("MM/EEEE HH:mm aa");
@@ -327,80 +278,45 @@ public class FragmentWebActivity extends Fragment {
         Date date = new Date();
         int n = 1000;
         n = generator.nextInt(n);
-            daydate =dateFormat.format(date);
+        daydate = dateFormat.format(date);
 
 
         return daydate;
     }
 
-    public String getPdf (Bitmap bitmap) throws IOException {
-        //Bitmap bitmap = BitmapFactory.decodeFile(path);
-
+    public String getPdf(Bitmap bitmap) throws IOException {
         PdfDocument pdfDocument = new PdfDocument();
         PdfDocument.PageInfo pageinfo = new PdfDocument.PageInfo.Builder(bitmap.getWidth(), bitmap.getHeight(), 1).create();
         PdfDocument.Page page = pdfDocument.startPage(pageinfo);
         page.getCanvas().drawBitmap(bitmap, 0, 0, null);
         pdfDocument.finishPage(page);
-        ///pdfDocument.close();
-
         File file1 = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-                , "ScreenShot"+RandomGenerator()+".pdf");
+                , "ScreenShot" + RandomGenerator() + ".pdf");
 
 
-                FileOutputStream outputStream1 = new FileOutputStream(file1);
-                pdfDocument.writeTo(outputStream1);
+        FileOutputStream outputStream1 = new FileOutputStream(file1);
+        pdfDocument.writeTo(outputStream1);
 
-                outputStream1.flush();
+        outputStream1.flush();
 
 
-            pdfDocument.close();
+        pdfDocument.close();
 
 
         return file1.getAbsolutePath();
 
     }
 
-    private String saveToInternalStorage(Bitmap bitmapImage){
-        String savedImageURL = MediaStore.Images.Media.insertImage(
-                getActivity().getContentResolver(),
-                bitmapImage,
-                "Image"+RandomGenerator(),
-                "ScreenShot"
-        );
-        return savedImageURL;
-    }
 
-    public int RandomGenerator(){
+    public int RandomGenerator() {
 
         Random generator = new Random();
-        Date date = new Date();
         int n = 1000;
         n = generator.nextInt(n);
         return n;
     }
-public boolean checkPageFinishLoading(){
-    webView.setWebViewClient(new WebViewClient() {
 
-        public void onPageFinished(WebView view, String url) {
-            spinner2.setVisibility(View.GONE);
-            pageLoading=true;
-            if(url!=null){
-                url=webView.getUrl();
-                try {
-                    SharedPreferences.Editor editor = getActivity().getSharedPreferences("pref", MODE_PRIVATE).edit();
-                    editor.putString("url", url);
-                    editor.apply();
-                }catch (Exception e){};
-            }
-            else{
-                return ;
-            }
-        }
 
-    });
-    return true;
-
-}
 
 
 }
